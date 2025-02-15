@@ -83,3 +83,44 @@ if Event.count.zero?
 else
   puts "Events already exist in the database."
 end
+
+if defined?(Ticket) && Ticket.count.zero?
+  sample_event = Event.first
+  sample_user  = User.find_by(email: 'user@example.com')
+
+  # Create a pending ticket
+  Ticket.create!(
+    user: sample_user,
+    event: sample_event,
+    quantity: 1,
+    price_cents: sample_event.ticket_price_cents,
+    currency: sample_event.currency,
+    state: 'pending'
+  )
+
+  # Create a booked ticket
+  Ticket.create!(
+    user: sample_user,
+    event: sample_event,
+    quantity: 2,
+    price_cents: sample_event.ticket_price_cents,
+    currency: sample_event.currency,
+    state: 'booked',
+    booked_at: Time.current
+  )
+
+  # Create a cancelled ticket
+  Ticket.create!(
+    user: sample_user,
+    event: sample_event,
+    quantity: 1,
+    price_cents: sample_event.ticket_price_cents,
+    currency: sample_event.currency,
+    state: 'cancelled',
+    cancelled_at: Time.current
+  )
+
+  puts "Sample tickets created."
+else
+  puts "Tickets already exist or Ticket model is not defined."
+end
