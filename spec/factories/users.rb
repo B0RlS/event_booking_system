@@ -7,8 +7,7 @@ FactoryBot.define do
     association :role, factory: :role
 
     trait :manager do
-      association :role, factory: [:role, :manager]
+      association :role, factory: %i[role manager]
     end
   end
 end
-

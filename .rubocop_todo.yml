@@ -177,6 +177,3 @@ Layout/LineLength:
 
 Layout/IndentationWidth:
   Width: 2
-
-Capybara/FeatureMethods:
-  Enabled: false
