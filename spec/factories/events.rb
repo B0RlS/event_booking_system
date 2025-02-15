@@ -1,25 +1,25 @@
 FactoryBot.define do
   factory :event do
-    name                { 'Sample Event' }
-    description         { 'An event description.' }
-    location            { 'Event Venue' }
-    start_time          { 1.day.from_now }
-    end_time            { 2.days.from_now }
-    total_tickets       { 100 }
-    available_tickets   { 100 }
-    ticket_price_cents  { 5_000 }
-    currency            { 'USD' }
-    rate                { 1.0 }
+    sequence(:name) { |n| "Event #{n}: #{Faker::Lorem.words(number: 3).join(' ')}" }
+    description         { Faker::Lorem.paragraph }
+    location            { Faker::Address.city }
+    start_time          { Faker::Time.forward(days: 7, period: :morning) }
+    end_time            { start_time + 2.hours }
+    total_tickets       { Faker::Number.between(from: 50, to: 200) }
+    available_tickets   { total_tickets }
+    ticket_price_cents  { Faker::Number.between(from: 1000, to: 10_000) }
+    currency            { "USD" }
+    rate                { Faker::Number.decimal(l_digits: 1, r_digits: 1) }
     association :creator, factory: :user
 
     trait :finished do
-      start_time { 2.days.ago }
-      end_time   { 1.day.ago }
-      aasm_state { 'finished' }
+      start_time { Faker::Time.backward(days: 7, period: :morning) }
+      end_time   { start_time + 2.hours }
+      aasm_state { "finished" }
     end
 
     trait :cancelled do
-      aasm_state { 'cancelled' }
+      aasm_state { "cancelled" }
     end
   end
 end

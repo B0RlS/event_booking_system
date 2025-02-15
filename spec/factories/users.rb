@@ -1,13 +1,13 @@
 FactoryBot.define do
   factory :user do
-    sequence(:email) { |test_name| "user#{test_name}@example.com" }
-    password { 'qwerty123' }
-    first_name { 'Boris' }
-    last_name  { 'Tsarikov' }
-    association :role, factory: :role
+    sequence(:email) { |n| "user#{n}@example.com" }
+    password { "qwerty123" }
+    first_name { Faker::Name.first_name }
+    last_name  { Faker::Name.last_name }
+    role { Role.find_by(name: 'user') || association(:role, :user_role) }
 
     trait :manager do
-      association :role, factory: %i[role manager]
+      role { Role.find_by(name: 'manager') || association(:role, :manager) }
     end
   end
 end

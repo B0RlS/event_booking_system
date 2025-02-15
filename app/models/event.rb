@@ -1,5 +1,6 @@
-# Class for creating Events
 class Event < ApplicationRecord
+  include AASM
+
   belongs_to :creator, class_name: 'User', foreign_key: 'created_by'
 
   has_many :tickets, dependent: :destroy
@@ -16,8 +17,6 @@ class Event < ApplicationRecord
 
   validate :end_time_after_start_time
 
-  include AASM
-
   aasm column: 'state' do
     state :active, initial: true
     state :finished
@@ -32,6 +31,10 @@ class Event < ApplicationRecord
     end
   end
 
+  def end_time_reached?
+    end_time.present? && end_time <= Time.current
+  end
+
   private
 
   def available_tickets_cannot_exceed_total_tickets
@@ -44,9 +47,5 @@ class Event < ApplicationRecord
     return unless end_time.present? && start_time.present? && end_time <= start_time
 
     errors.add(:end_time, 'must be after start time')
-  end
-
-  def end_time_reached?
-    end_time.present? && end_time <= Time.current
   end
 end

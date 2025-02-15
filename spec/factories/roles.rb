@@ -1,7 +1,12 @@
 FactoryBot.define do
   factory :role do
-    name { 'user' }
-    description { 'A regular user role' }
+    sequence(:name) { |n| "role_#{n}" }
+    description { Faker::Lorem.sentence }
+
+    trait :user_role do
+      name { 'user' }
+      description { 'A default user role with limited permissions' }
+    end
 
     trait :manager do
       name { 'manager' }

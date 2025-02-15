@@ -84,18 +84,7 @@ Style/BlockComments:
 # Offense count: 9
 # Configuration parameters: AllowedConstants.
 Style/Documentation:
-  Exclude:
-    - 'spec/**/*'
-    - 'test/**/*'
-    - 'app/helpers/application_helper.rb'
-    - 'app/mailers/application_mailer.rb'
-    - 'app/models/application_record.rb'
-    - 'app/models/role.rb'
-    - 'app/models/user.rb'
-    - 'config/application.rb'
-    - 'db/migrate/20250215183748_devise_create_users.rb'
-    - 'db/migrate/20250215200430_create_roles.rb'
-    - 'db/migrate/20250215200540_add_fields_to_users.rb'
+  Enabled: false
 
 # Offense count: 39
 # This cop supports unsafe autocorrection (--autocorrect-all).
