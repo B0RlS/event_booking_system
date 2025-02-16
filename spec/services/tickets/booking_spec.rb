@@ -8,11 +8,10 @@ RSpec.describe Tickets::Booking, type: :service do
                    ticket_price_cents: 5000, currency: 'USD')
   end
   let(:user) { create(:user) }
+  let(:ticket_count) { 10 }
 
   describe '.call' do
     context 'when booking is successful' do
-      let(:ticket_count) { 10 }
-
       it 'returns a successful result and updates event availability', :aggregate_failures do
         expect(subject.success?).to be true
         tickets = subject.data
@@ -32,7 +31,6 @@ RSpec.describe Tickets::Booking, type: :service do
     end
 
     context 'when ticket creation fails' do
-      let(:ticket_count) { 10 }
       before do
         allow_any_instance_of(Ticket).to receive(:save).and_return(false)
         allow_any_instance_of(Ticket).to receive_message_chain(:errors, :full_messages)
@@ -46,7 +44,6 @@ RSpec.describe Tickets::Booking, type: :service do
     end
 
     context 'when ticket confirmation fails' do
-      let(:ticket_count) { 10 }
       let(:dummy_ticket) do
         instance_double('Ticket',
                         aasm: double(current_state: :pending),
@@ -69,6 +66,33 @@ RSpec.describe Tickets::Booking, type: :service do
       it 'raises an error', :aggregate_failures do
         expect(subject.success?).to be false
         expect(subject.errors.join).to eq('Ticket count must be a positive integer')
+      end
+    end
+
+    context 'when user can not book tickets' do
+      before { allow_any_instance_of(TicketPolicy).to receive(:book?).and_return(false) }
+
+      it 'raises en policy error', :aggregate_failures do
+        expect(subject.success?).to be false
+        expect(subject.errors.join).to eq('Not authorized to book tickets')
+      end
+    end
+
+    context 'when event is invalid' do
+      let(:event) { build_stubbed(:event, total_tickets: nil, available_tickets: -10) }
+
+      it 'raises en policy error', :aggregate_failures do
+        expect(subject.success?).to be false
+        expect(subject.errors.join).to eq('Event is invalid')
+      end
+    end
+
+    context 'when user is invalid' do
+      let(:user) { build_stubbed(:user, role: nil) }
+
+      it 'raises en policy error', :aggregate_failures do
+        expect(subject.success?).to be false
+        expect(subject.errors.join).to eq('User is invalid')
       end
     end
   end

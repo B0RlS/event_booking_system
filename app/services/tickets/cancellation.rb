@@ -27,8 +27,6 @@ module Tickets
         end
         ServiceResult.new(success: true, data: tickets)
       end
-    rescue Tickets::Errors::TicketOperationError, Tickets::Errors::TicketCancellationError => e
-      ServiceResult.new(success: false, errors: [e.message])
     rescue StandardError => e
       ServiceResult.new(success: false, errors: [e.message])
     end

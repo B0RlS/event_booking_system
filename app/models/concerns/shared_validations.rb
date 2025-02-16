@@ -41,15 +41,6 @@ module SharedValidations
       already_cancelled = tickets.select(&:cancelled?)
       raise Tickets::Errors::TicketOperationError, 'Some tickets are already cancelled' if already_cancelled.any?
     end
-
-    def validate_event_params!(params)
-      required_keys = %i[name description location start_time total_tickets ticket_price_cents currency]
-
-      missing = required_keys.select { |k| params[k].blank? }
-      if missing.any?
-        raise Tickets::Errors::EventOperationError, "Missing event parameters: #{missing.join(', ')}"
-      end
-    end
   end
 end
 

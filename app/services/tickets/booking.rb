@@ -10,6 +10,7 @@ module Tickets
     end
 
     def validate!
+      validate_policy!
       validate_event!
       validate_user!
       validate_available_tickets!(ticket_count)
@@ -28,8 +29,6 @@ module Tickets
         end
         ServiceResult.new(success: true, data: tickets)
       end
-    rescue Tickets::Errors::TicketOperationError, Tickets::Errors::TicketBookingError => e
-      ServiceResult.new(success: false, errors: [e.message])
     rescue StandardError => e
       ServiceResult.new(success: false, errors: [e.message])
     end
@@ -47,6 +46,10 @@ module Tickets
 
       raise Tickets::Errors::TicketBookingError,
             "Ticket confirmation failed: #{ticket.errors.full_messages.join(', ')}"
+    end
+
+    def validate_policy!
+      raise Users::Errors::UserPolicyError, 'Not authorized to book tickets' unless TicketPolicy.new(user, nil).book?
     end
   end
 end
