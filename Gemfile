@@ -71,6 +71,7 @@ group :development, :test do
   gem 'rubocop-rspec', require: false
   gem 'faker'
   gem 'pry-byebug'
+  gem 'dry-validation'
 end
 
 group :development do
