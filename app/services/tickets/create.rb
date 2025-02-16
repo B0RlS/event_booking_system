@@ -2,10 +2,9 @@ module Tickets
   class Create
     extend Callable
 
-    def initialize(event, user, quantity)
+    def initialize(event, user)
       @event = event
       @user = user
-      @quantity = quantity
       @price_cents = event.ticket_price_cents
       @currency = event.currency
     end
@@ -14,7 +13,6 @@ module Tickets
       ticket = Ticket.new(
         event: event,
         user: user,
-        quantity: quantity,
         price_cents: price_cents,
         currency: currency,
         state: 'pending'
@@ -26,6 +24,6 @@ module Tickets
 
     private
 
-    attr_reader :event, :user, :quantity, :price_cents, :currency
+    attr_reader :event, :user, :price_cents, :currency
   end
 end

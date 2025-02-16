@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_02_15_213435) do
+ActiveRecord::Schema[7.1].define(version: 2025_02_16_133306) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -44,7 +44,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_02_15_213435) do
   create_table "tickets", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "event_id", null: false
-    t.integer "quantity", null: false
     t.integer "price_cents", null: false
     t.string "currency", null: false
     t.string "state", default: "pending", null: false

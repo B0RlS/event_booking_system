@@ -2,19 +2,19 @@ module Tickets
   class Booking
     extend Callable
 
-    def initialize(event, user, quantity)
+    def initialize(event, user, ticket_count)
       @event = event
       @user = user
-      @quantity = quantity.to_i
+      @ticket_count = ticket_count.to_i
     end
 
     def call
       ActiveRecord::Base.transaction do
-        ticket = create_ticket!
-        confirm_ticket!(ticket)
-        update_event_availability!(ticket)
+        tickets = create_tickets!
+        update_event_availability!(tickets.size)
+        tickets.each { |ticket| confirm_ticket!(ticket) }
 
-        return ServiceResult.new(success: true, data: ticket)
+        ServiceResult.new(success: true, data: tickets)
       end
     rescue TicketCreationError, TicketBookingError => e
       ServiceResult.new(success: false, errors: [e.message])
@@ -24,28 +24,21 @@ module Tickets
 
     private
 
-    attr_reader :event, :user, :quantity
+    attr_reader :event, :user, :ticket_count
 
-    def create_ticket!
-      creation_result = Tickets::Create.call(event, user, quantity)
-      creation_result.data
+    def create_tickets!
+      Array.new(ticket_count) { Tickets::Create.call(event, user).data }
     end
 
     def confirm_ticket!(ticket)
       unless ticket.confirm!
         raise TicketBookingError, "Ticket confirmation failed: #{ticket.errors.full_messages.join(', ')}"
       end
-
       ticket
     end
 
-    def update_event_availability!(ticket)
-      new_available = event.available_tickets - ticket.quantity
-      raise TicketBookingError, 'Not enough available tickets' if new_available.negative?
-
-      return if event.update(available_tickets: new_available)
-
-      raise TicketBookingError, 'Failed to update event availability'
+    def update_event_availability!(num_tickets)
+      Tickets::EventAvailabilityUpdater.call(event, -num_tickets)
     end
   end
 end

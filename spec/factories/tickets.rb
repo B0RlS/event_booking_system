@@ -2,7 +2,6 @@ FactoryBot.define do
   factory :ticket do
     association :user
     association :event
-    quantity { Faker::Number.between(from: 1, to: 5) }
     price_cents { event.ticket_price_cents }
     currency { event.currency }
     state { 'pending' }

@@ -92,7 +92,6 @@ if defined?(Ticket) && Ticket.count.zero?
   Ticket.create!(
     user: sample_user,
     event: sample_event,
-    quantity: 1,
     price_cents: sample_event.ticket_price_cents,
     currency: sample_event.currency,
     state: 'pending'
@@ -102,7 +101,6 @@ if defined?(Ticket) && Ticket.count.zero?
   Ticket.create!(
     user: sample_user,
     event: sample_event,
-    quantity: 2,
     price_cents: sample_event.ticket_price_cents,
     currency: sample_event.currency,
     state: 'booked',
@@ -113,7 +111,6 @@ if defined?(Ticket) && Ticket.count.zero?
   Ticket.create!(
     user: sample_user,
     event: sample_event,
-    quantity: 1,
     price_cents: sample_event.ticket_price_cents,
     currency: sample_event.currency,
     state: 'cancelled',

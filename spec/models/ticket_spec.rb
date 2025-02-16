@@ -7,9 +7,6 @@ RSpec.describe Ticket, type: :model do
 
   describe 'validations' do
     context 'basic validations' do
-      it { is_expected.to validate_presence_of(:quantity) }
-      it { is_expected.to validate_numericality_of(:quantity).only_integer.is_greater_than(0) }
-
       it { is_expected.to validate_presence_of(:price_cents) }
       it { is_expected.to validate_numericality_of(:price_cents).only_integer.is_greater_than_or_equal_to(0) }
 
@@ -167,42 +164,6 @@ RSpec.describe Ticket, type: :model do
           expect(subject.aasm.current_state).to eq(:pending)
         end
       end
-    end
-  end
-
-  context 'with valid ticket quantity' do
-    subject { build(:ticket, event: event, quantity: 10) }
-
-    it 'is valid' do
-      expect(subject).to be_valid
-    end
-  end
-
-  context 'when ticket quantity equals available tickets' do
-    subject { build(:ticket, event: event, quantity: 80) }
-
-    it 'is valid' do
-      expect(subject).to be_valid
-    end
-  end
-
-  context 'when ticket quantity exceeds available tickets' do
-    subject { build(:ticket, event: event, quantity: 90) }
-
-    it 'is invalid' do
-      subject.validate
-      expect(subject.errors[:quantity]).to include('exceeds the available tickets')
-    end
-  end
-
-  context 'when event does not have ticket counts set' do
-    subject { build(:ticket, event: event_with_nil, quantity: 10) }
-
-    let(:event_with_nil) { build_stubbed(:event, total_tickets: 100, available_tickets: nil) }
-
-    it 'is invalid' do
-      subject.validate
-      expect(subject.errors[:event]).to include('does not have ticket counts set properly')
     end
   end
 end
