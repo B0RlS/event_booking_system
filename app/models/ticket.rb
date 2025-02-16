@@ -18,6 +18,7 @@ class Ticket < ApplicationRecord
   validate :booked_state_timestamps, if: -> { aasm.current_state == :booked }
   validate :cancelled_at_presence, if: -> { aasm.current_state == :cancelled }
   validate :pending_state_no_timestamps, if: -> { aasm.current_state == :pending }
+  validate :quantity_within_event_availability
 
   aasm column: 'state' do
     state :pending, initial: true
@@ -41,7 +42,6 @@ class Ticket < ApplicationRecord
   private
 
   def set_booked_at
-    # This method sets booked_at before transitioning to booked
     self.booked_at ||= Time.current
   end
 
@@ -62,5 +62,24 @@ class Ticket < ApplicationRecord
     return unless booked_at.present? || cancelled_at.present?
 
     errors.add(:base, "Timestamps should not be set for pending tickets")
+  end
+
+  def quantity_within_event_availability
+    return if event.blank? || quantity.blank?
+
+    validate_event_ticket_counts
+    validate_quantity_availability
+  end
+
+  def validate_event_ticket_counts
+    return if event.available_tickets.present? && event.total_tickets.present?
+
+    errors.add(:event, "does not have ticket counts set properly")
+  end
+
+  def validate_quantity_availability
+    return unless event.available_tickets.present? && quantity > event.available_tickets
+
+    errors.add(:quantity, "exceeds the available tickets")
   end
 end
