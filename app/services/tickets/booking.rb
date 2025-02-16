@@ -2,6 +2,7 @@ module Tickets
   class Booking
     extend Callable
     include SharedValidations
+    include SharedPolicyValidation
 
     def initialize(event, user, ticket_count)
       @event = event
@@ -10,7 +11,7 @@ module Tickets
     end
 
     def validate!
-      validate_policy!
+      validate_policy!(TicketPolicy.new(user, nil).book?, 'Not authorized to book tickets')
       validate_event!
       validate_user!
       validate_available_tickets!(ticket_count)
@@ -19,10 +20,8 @@ module Tickets
 
     def call
       validate!
-
       ActiveRecord::Base.transaction do
         tickets = create_tickets
-
         tickets.each do |ticket|
           event.decrement_available_tickets!
           confirm_ticket(ticket)
@@ -46,10 +45,6 @@ module Tickets
 
       raise Tickets::Errors::TicketBookingError,
             "Ticket confirmation failed: #{ticket.errors.full_messages.join(', ')}"
-    end
-
-    def validate_policy!
-      raise Users::Errors::UserPolicyError, 'Not authorized to book tickets' unless TicketPolicy.new(user, nil).book?
     end
   end
 end

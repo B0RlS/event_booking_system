@@ -2,6 +2,7 @@ module Tickets
   class Cancellation
     extend Callable
     include SharedValidations
+    include SharedPolicyValidation
 
     def initialize(event, tickets, user)
       @event = event
@@ -10,7 +11,7 @@ module Tickets
     end
 
     def validate!
-      validate_policy!
+      validate_policy!(TicketPolicy.new(user, tickets).cancel?, 'Not authorized to cancel tickets')
       validate_event_tickets!
       validate_event!
       validate_user!
@@ -20,7 +21,6 @@ module Tickets
 
     def call
       validate!
-
       ActiveRecord::Base.transaction do
         tickets.each do |ticket|
           event.increment_available_tickets!
@@ -41,10 +41,6 @@ module Tickets
 
       raise Tickets::Errors::TicketCancellationError,
             "Ticket cancellation failed: #{ticket.errors.full_messages.join(', ')}"
-    end
-
-    def validate_policy!
-      raise Users::Errors::UserPolicyError, 'Not authorized to cancel tickets' unless TicketPolicy.new(user, tickets).cancel?
     end
   end
 end
