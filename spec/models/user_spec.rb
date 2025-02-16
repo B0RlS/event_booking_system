@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  subject { build(:user) }
+  subject { build(:user, :manager) }
 
   describe 'validations' do
     it { should validate_presence_of(:first_name) }
@@ -24,6 +24,22 @@ RSpec.describe User, type: :model do
 
     it 'is not valid' do
       expect(subject).not_to be_valid
+    end
+  end
+
+  describe '.manager?' do
+    context 'when user is a manager' do
+      it 'returns false' do
+        expect(subject.manager?).to be_truthy
+      end
+    end
+
+    context 'when user is not a manager' do
+      subject { build(:user) }
+
+      it 'returns false' do
+        expect(subject.manager?).to be_falsey
+      end
     end
   end
 end
