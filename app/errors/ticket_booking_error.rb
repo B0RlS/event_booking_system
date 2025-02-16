@@ -1,1 +1,0 @@
-class TicketBookingError < StandardError; end

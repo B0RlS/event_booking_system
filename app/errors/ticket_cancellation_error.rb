@@ -1,1 +1,0 @@
-class TicketCancellationError < StandardError; end

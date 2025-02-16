@@ -1,2 +1,0 @@
-class EventAvailabilityError < StandardError; end
-
