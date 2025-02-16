@@ -21,14 +21,14 @@ RSpec.describe ServiceResult, type: :model do
     context 'when success is false' do
       let(:success) { false }
       let(:data)    { nil }
-      let(:errors)  { "Something went wrong" }
+      let(:errors)  { 'Something went wrong' }
 
       it 'returns failure?' do
         expect(subject.failure?).to be true
       end
 
       it 'stores errors as an array' do
-        expect(subject.errors).to eq(["Something went wrong"])
+        expect(subject.errors).to eq(['Something went wrong'])
       end
     end
   end
