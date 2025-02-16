@@ -47,6 +47,8 @@ RSpec.describe Tickets::Cancellation, type: :service do
         ]
       end
 
+      before { allow_any_instance_of(TicketPolicy).to receive(:cancel?).and_return(true) }
+
       it 'raises an error', :aggregate_failures do
         expect(subject.success?).to be false
         expect(subject.errors.join).to eq('Some tickets do not belong to the user')
@@ -60,6 +62,8 @@ RSpec.describe Tickets::Cancellation, type: :service do
           create(:ticket, :cancelled, event: event, user: user)
         ]
       end
+
+      before { allow_any_instance_of(TicketPolicy).to receive(:cancel?).and_return(true) }
 
       it 'raises an error', :aggregate_failures do
         expect(subject.success?).to be false
@@ -77,6 +81,15 @@ RSpec.describe Tickets::Cancellation, type: :service do
       it 'returns a failure result', :aggregate_failures do
         expect(subject.success?).to be false
         expect(subject.errors.join).to eq('Ticket cancellation failed: Cancellation error')
+      end
+    end
+
+    context 'when user can not cancel tickets' do
+      before { allow_any_instance_of(TicketPolicy).to receive(:cancel?).and_return(false) }
+
+      it 'raises en policy error', :aggregate_failures do
+        expect(subject.success?).to be false
+        expect(subject.errors.join).to eq('Not authorized to cancel tickets')
       end
     end
   end

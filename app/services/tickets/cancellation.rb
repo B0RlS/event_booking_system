@@ -10,6 +10,7 @@ module Tickets
     end
 
     def validate!
+      validate_policy!
       validate_event_tickets!
       validate_event!
       validate_user!
@@ -40,6 +41,10 @@ module Tickets
 
       raise Tickets::Errors::TicketCancellationError,
             "Ticket cancellation failed: #{ticket.errors.full_messages.join(', ')}"
+    end
+
+    def validate_policy!
+      raise Users::Errors::UserPolicyError, 'Not authorized to cancel tickets' unless TicketPolicy.new(user, tickets).cancel?
     end
   end
 end
