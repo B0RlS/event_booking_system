@@ -17,8 +17,8 @@ RSpec.describe Tickets::Booking, type: :service do
         expect(subject.success?).to be true
         tickets = subject.data
         expect(tickets.size).to eq(10)
-        expect(tickets).to all( satisfy { |t| t.aasm.current_state == :booked } )
-        expect(event.available_tickets).to eq(70)
+        expect(tickets).to all(satisfy { |ticket| ticket.aasm.current_state == :booked })
+        expect(event.reload.available_tickets).to eq(70)
       end
     end
 
@@ -27,7 +27,7 @@ RSpec.describe Tickets::Booking, type: :service do
 
       it 'returns a failure result', :aggregate_failures do
         expect(subject.success?).to be false
-        expect(subject.errors.join).to match(/Not enough available tickets/i)
+        expect(subject.errors.join).to eq('Not enough available tickets')
       end
     end
 
@@ -41,7 +41,7 @@ RSpec.describe Tickets::Booking, type: :service do
 
       it 'returns a failure result', :aggregate_failures do
         expect(subject.success?).to be false
-        expect(subject.errors.join).to match(/Ticket creation error/i)
+        expect(subject.errors.join).to eq('Ticket creation error')
       end
     end
 
@@ -54,24 +54,21 @@ RSpec.describe Tickets::Booking, type: :service do
                         confirm!: false)
       end
       before do
-        allow(Tickets::Create).to receive(:call).and_return(
-          ServiceResult.new(success: true, data: dummy_ticket)
-        )
+        allow(Tickets::Create).to receive(:call).and_return(ServiceResult.new(success: true, data: dummy_ticket))
       end
 
       it 'returns a failure result', :aggregate_failures do
         expect(subject.success?).to be false
-        expect(subject.errors.join).to match(/Ticket confirmation failed: Confirmation error/)
+        expect(subject.errors.join).to eq('Ticket confirmation failed: Confirmation error')
       end
     end
 
-    context 'when event update fails during booking' do
-      let(:ticket_count) { 10 }
-      before { allow(event).to receive(:update!).and_return(false) }
+    context 'when ticket count is not a positive integer' do
+      let(:ticket_count) { -5 }
 
-      it 'returns a failure result', :aggregate_failures do
+      it 'raises an error', :aggregate_failures do
         expect(subject.success?).to be false
-        expect(subject.errors.join).to match(/Failed to update event availability/i)
+        expect(subject.errors.join).to eq('Ticket count must be a positive integer')
       end
     end
   end

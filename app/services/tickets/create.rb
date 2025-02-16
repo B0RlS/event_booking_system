@@ -17,7 +17,7 @@ module Tickets
         currency: currency,
         state: 'pending'
       )
-      raise TicketCreationError, ticket.errors.full_messages.join(', ') unless ticket.save
+      raise Tickets::Errors::TicketOperationError, ticket.errors.full_messages.join(', ') unless ticket.save
 
       ServiceResult.new(success: true, data: ticket)
     end

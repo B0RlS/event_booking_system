@@ -1,35 +1,47 @@
 module Tickets
   class Cancellation
     extend Callable
+    include SharedValidations
 
-    def initialize(ticket, user)
-      @ticket = ticket
+    def initialize(event, tickets, user)
+      @event = event
+      @tickets = tickets
       @user = user
     end
 
+    def validate!
+      validate_event_tickets!
+      validate_event!
+      validate_user!
+      validate_user_tickets!
+      validate_not_cancelled!
+    end
+
     def call
+      validate!
+
       ActiveRecord::Base.transaction do
-        cancel_ticket!
-        update_event_availability!
-        ServiceResult.new(success: true, data: ticket)
+        tickets.each do |ticket|
+          event.increment_available_tickets!
+          cancel_ticket!(ticket)
+        end
+        ServiceResult.new(success: true, data: tickets)
       end
-    rescue TicketCancellationError => e
-        ServiceResult.new(success: false, errors: [e.message])
+    rescue Tickets::Errors::TicketOperationError => e
+      ServiceResult.new(success: false, errors: [e.message])
     rescue StandardError => e
-        ServiceResult.new(success: false, errors: [e.message])
+      ServiceResult.new(success: false, errors: [e.message])
     end
 
     private
 
-    attr_reader :ticket, :user
+    attr_reader :event, :tickets, :user
 
-    def cancel_ticket!
+    def cancel_ticket!(ticket)
       return if ticket.cancel!
-      raise TicketCancellationError, "Ticket cancellation failed: #{ticket.errors.full_messages.join(', ')}"
-    end
 
-    def update_event_availability!
-      Tickets::EventAvailabilityUpdater.call(ticket.event, 1)
+      raise Tickets::Errors::TicketOperationError,
+            "Ticket cancellation failed: #{ticket.errors.full_messages.join(', ')}"
     end
   end
 end

@@ -128,10 +128,9 @@ RSpec.describe Ticket, type: :model do
       context 'from pending state' do
         subject { create(:ticket, state: 'pending', booked_at: nil, cancelled_at: nil) }
 
-        it 'transitions from pending to cancelled when cancel! is called', :aggregate_failures do
-          subject.cancel!
-          expect(subject.aasm.current_state).to eq(:cancelled)
-          expect(subject.cancelled_at).not_to be_nil
+        it 'raises an error when refund! is called', :aggregate_failures do
+          expect { subject.cancel! }.to raise_error(AASM::InvalidTransition)
+          expect(subject.aasm.current_state).to eq(:pending)
         end
       end
 

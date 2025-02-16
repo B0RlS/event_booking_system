@@ -8,7 +8,6 @@ RSpec.describe Tickets::Create, type: :service do
 
   describe '.call' do
     context 'when ticket creation is successful' do
-
       it 'returns a successful ServiceResult with the created ticket', :aggregate_failures do
         expect(subject.success?).to be true
         ticket = subject.data
@@ -27,8 +26,8 @@ RSpec.describe Tickets::Create, type: :service do
                                                                :full_messages).and_return(['Some error occurred'])
       end
 
-      it 'raises a TicketCreationError' do
-        expect { subject }.to raise_error(TicketCreationError, /Some error occurred/)
+      it 'raises a Tickets::Errors::TicketOperationError' do
+        expect { subject }.to raise_error(Tickets::Errors::TicketOperationError, /Some error occurred/)
       end
     end
   end

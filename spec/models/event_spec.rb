@@ -3,6 +3,8 @@ require 'rails_helper'
 RSpec.describe Event, type: :model do
   subject { build(:event) }
 
+  let(:start_time) {}
+
   context 'validations' do
     context 'basic presence validations' do
       it { is_expected.to validate_presence_of(:name) }
@@ -92,6 +94,35 @@ RSpec.describe Event, type: :model do
       it 'can transition from active to cancelled' do
         subject.cancel!
         expect(subject.aasm.current_state).to eq(:cancelled)
+      end
+    end
+  end
+
+  describe '#increment_available_tickets!' do
+    subject { create(:event, total_tickets: 100, available_tickets: 50) }
+
+    context 'when tickets are cancelled' do
+      it 'increases available_tickets count' do
+        expect { subject.increment_available_tickets!(5) }
+          .to change { subject.reload.available_tickets }.from(50).to(55)
+      end
+    end
+  end
+
+  describe '#decrement_available_tickets!' do
+    subject { create(:event, total_tickets: 100, available_tickets: 50) }
+
+    context 'when there are enough available tickets' do
+      it 'reduces available_tickets count' do
+        expect { subject.decrement_available_tickets!(10) }
+          .to change { subject.reload.available_tickets }.from(50).to(40)
+      end
+    end
+
+    context 'when there are not enough tickets' do
+      it 'raises a Tickets::Errors::TicketOperationError' do
+        expect { subject.decrement_available_tickets!(60) }
+          .to raise_error(Tickets::Errors::TicketOperationError, 'Not enough available tickets')
       end
     end
   end

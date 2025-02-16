@@ -2,19 +2,16 @@ class Event < ApplicationRecord
   include AASM
 
   belongs_to :creator, class_name: 'User', foreign_key: 'created_by'
-
   has_many :tickets, dependent: :destroy
 
   validates :name, :description, :location, :start_time,
             :total_tickets, :available_tickets, :ticket_price_cents, :currency,
             presence: true
-
   validates :total_tickets, numericality: { only_integer: true, greater_than: 0 }
   validates :available_tickets, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :ticket_price_cents, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   validate :available_tickets_cannot_exceed_total_tickets
-
   validate :end_time_after_start_time
 
   aasm column: 'state' do
@@ -33,6 +30,20 @@ class Event < ApplicationRecord
 
   def end_time_reached?
     end_time.present? && end_time <= Time.current
+  end
+
+  def decrement_available_tickets!(count = 1)
+    with_lock do
+      raise Tickets::Errors::TicketOperationError, 'Not enough available tickets' if available_tickets < count
+
+      update!(available_tickets: available_tickets - count)
+    end
+  end
+
+  def increment_available_tickets!(count = 1)
+    with_lock do
+      update!(available_tickets: available_tickets + count)
+    end
   end
 
   private

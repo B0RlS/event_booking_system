@@ -11,11 +11,9 @@ class Ticket < ApplicationRecord
   validates :currency, presence: true,
                        inclusion: { in: AVAILIBALE_CURRENCIES,
                                     message: '%<value>s is not a valid currency' }
-
   validate :booked_state_timestamps, if: -> { aasm.current_state == :booked }
   validate :cancelled_at_presence, if: -> { aasm.current_state == :cancelled }
   validate :pending_state_no_timestamps, if: -> { aasm.current_state == :pending }
-  validate :ticket_availability
 
   aasm column: 'state' do
     state :pending, initial: true
@@ -28,7 +26,7 @@ class Ticket < ApplicationRecord
     end
 
     event :cancel, before: :set_cancelled_at do
-      transitions from: %i[pending booked], to: :cancelled
+      transitions from: :booked, to: :cancelled
     end
 
     event :refund do
@@ -57,13 +55,7 @@ class Ticket < ApplicationRecord
 
   def pending_state_no_timestamps
     return unless booked_at.present? || cancelled_at.present?
-    errors.add(:base, 'Timestamps should not be set for pending tickets')
-  end
 
-  def ticket_availability
-    return if event.blank? || event.available_tickets.blank?
-    if event.available_tickets <= 0
-      errors.add(:base, 'No available tickets')
-    end
+    errors.add(:base, 'Timestamps should not be set for pending tickets')
   end
 end
