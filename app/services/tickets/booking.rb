@@ -28,7 +28,7 @@ module Tickets
         end
         ServiceResult.new(success: true, data: tickets)
       end
-    rescue Tickets::Errors::TicketOperationError => e
+    rescue Tickets::Errors::TicketOperationError, Tickets::Errors::TicketBookingError => e
       ServiceResult.new(success: false, errors: [e.message])
     rescue StandardError => e
       ServiceResult.new(success: false, errors: [e.message])
@@ -45,7 +45,7 @@ module Tickets
     def confirm_ticket(ticket)
       return if ticket.confirm!
 
-      raise Tickets::Errors::TicketOperationError,
+      raise Tickets::Errors::TicketBookingError,
             "Ticket confirmation failed: #{ticket.errors.full_messages.join(', ')}"
     end
   end

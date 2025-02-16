@@ -27,7 +27,7 @@ module Tickets
         end
         ServiceResult.new(success: true, data: tickets)
       end
-    rescue Tickets::Errors::TicketOperationError => e
+    rescue Tickets::Errors::TicketOperationError, Tickets::Errors::TicketCancellationError => e
       ServiceResult.new(success: false, errors: [e.message])
     rescue StandardError => e
       ServiceResult.new(success: false, errors: [e.message])
@@ -40,7 +40,7 @@ module Tickets
     def cancel_ticket!(ticket)
       return if ticket.cancel!
 
-      raise Tickets::Errors::TicketOperationError,
+      raise Tickets::Errors::TicketCancellationError,
             "Ticket cancellation failed: #{ticket.errors.full_messages.join(', ')}"
     end
   end
