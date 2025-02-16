@@ -1,0 +1,1 @@
+class TicketCreationError < StandardError; end
