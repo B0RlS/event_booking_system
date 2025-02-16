@@ -170,39 +170,39 @@ RSpec.describe Ticket, type: :model do
     end
   end
 
-  context "with valid ticket quantity" do
+  context 'with valid ticket quantity' do
     subject { build(:ticket, event: event, quantity: 10) }
 
-    it "is valid" do
+    it 'is valid' do
       expect(subject).to be_valid
     end
   end
 
-  context "when ticket quantity equals available tickets" do
+  context 'when ticket quantity equals available tickets' do
     subject { build(:ticket, event: event, quantity: 80) }
 
-    it "is valid" do
+    it 'is valid' do
       expect(subject).to be_valid
     end
   end
 
-  context "when ticket quantity exceeds available tickets" do
+  context 'when ticket quantity exceeds available tickets' do
     subject { build(:ticket, event: event, quantity: 90) }
 
-    it "is invalid" do
+    it 'is invalid' do
       subject.validate
-      expect(subject.errors[:quantity]).to include("exceeds the available tickets")
+      expect(subject.errors[:quantity]).to include('exceeds the available tickets')
     end
   end
 
-  context "when event does not have ticket counts set" do
+  context 'when event does not have ticket counts set' do
     subject { build(:ticket, event: event_with_nil, quantity: 10) }
 
     let(:event_with_nil) { build_stubbed(:event, total_tickets: 100, available_tickets: nil) }
 
-    it "is invalid" do
+    it 'is invalid' do
       subject.validate
-      expect(subject.errors[:event]).to include("does not have ticket counts set properly")
+      expect(subject.errors[:event]).to include('does not have ticket counts set properly')
     end
   end
 end

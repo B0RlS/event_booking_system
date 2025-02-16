@@ -146,7 +146,6 @@ Style/SpecialGlobalVars:
 # SupportedStyles: single_quotes, double_quotes
 Style/StringLiterals:
   EnforcedStyle: single_quotes
-  Enabled: false
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).

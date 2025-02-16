@@ -13,7 +13,7 @@ class Ticket < ApplicationRecord
                           numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :currency, presence: true,
                        inclusion: { in: AVAILIBALE_CURRENCIES,
-                                    message: "%<value>s is not a valid currency" }
+                                    message: '%<value>s is not a valid currency' }
 
   validate :booked_state_timestamps, if: -> { aasm.current_state == :booked }
   validate :cancelled_at_presence, if: -> { aasm.current_state == :cancelled }
@@ -50,18 +50,18 @@ class Ticket < ApplicationRecord
   end
 
   def booked_state_timestamps
-    errors.add(:booked_at, "must be present when ticket is booked") if booked_at.blank?
-    errors.add(:cancelled_at, "must not be set when ticket is booked") if cancelled_at.present?
+    errors.add(:booked_at, 'must be present when ticket is booked') if booked_at.blank?
+    errors.add(:cancelled_at, 'must not be set when ticket is booked') if cancelled_at.present?
   end
 
   def cancelled_at_presence
-    errors.add(:cancelled_at, "must be present when ticket is cancelled") if cancelled_at.blank?
+    errors.add(:cancelled_at, 'must be present when ticket is cancelled') if cancelled_at.blank?
   end
 
   def pending_state_no_timestamps
     return unless booked_at.present? || cancelled_at.present?
 
-    errors.add(:base, "Timestamps should not be set for pending tickets")
+    errors.add(:base, 'Timestamps should not be set for pending tickets')
   end
 
   def quantity_within_event_availability
@@ -74,12 +74,12 @@ class Ticket < ApplicationRecord
   def validate_event_ticket_counts
     return if event.available_tickets.present? && event.total_tickets.present?
 
-    errors.add(:event, "does not have ticket counts set properly")
+    errors.add(:event, 'does not have ticket counts set properly')
   end
 
   def validate_quantity_availability
     return unless event.available_tickets.present? && quantity > event.available_tickets
 
-    errors.add(:quantity, "exceeds the available tickets")
+    errors.add(:quantity, 'exceeds the available tickets')
   end
 end
