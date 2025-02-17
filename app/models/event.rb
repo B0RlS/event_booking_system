@@ -20,7 +20,6 @@ class Event < ApplicationRecord
   validates :currency, inclusion: { in: AVAILIBALE_CURRENCIES, message: '%<value>s is not a valid currency' }
   validates :name, uniqueness: { case_sensitive: false, message: 'Event name must be unique' }
 
-
   validate :available_tickets_cannot_exceed_total_tickets
   validate :end_time_after_start_time
   validate :start_time_must_be_in_future, on: :create
@@ -73,10 +72,14 @@ class Event < ApplicationRecord
   end
 
   def start_time_must_be_in_future
+    return if finished?
+
     errors.add(:start_time, 'must be in the future') if start_time.present? && start_time < Time.current
   end
 
   def end_time_must_be_in_future
+    return if finished?
+
     errors.add(:end_time, 'must be in the future') if end_time.present? && end_time < Time.current
   end
 end
