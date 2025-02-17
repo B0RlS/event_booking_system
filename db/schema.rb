@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_02_16_133306) do
+ActiveRecord::Schema[7.1].define(version: 2025_02_17_160035) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -31,6 +31,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_02_16_133306) do
     t.datetime "updated_at", null: false
     t.index ["created_by"], name: "index_events_on_created_by"
     t.index ["state"], name: "index_events_on_state"
+    t.check_constraint "available_tickets <= total_tickets", name: "available_tickets_check"
   end
 
   create_table "roles", force: :cascade do |t|

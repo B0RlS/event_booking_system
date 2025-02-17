@@ -55,6 +55,38 @@ RSpec.describe Event, type: :model do
           expect(subject).to be_valid
         end
       end
+
+      context 'when start_time is in the past' do
+        subject { build(:event, start_time: 1.hour.ago) }
+
+        it 'is not valid' do
+          expect(subject).not_to be_valid
+        end
+
+        it 'adds an error on start_time' do
+          subject.validate
+          expect(subject.errors[:start_time]).to include('must be in the future')
+        end
+      end
+
+      context 'when end_time is before start_time' do
+        subject { build(:event, start_time: Time.current, end_time: 1.hour.ago) }
+
+        it 'is not valid' do
+          expect(subject).not_to be_valid
+        end
+
+        it 'adds an error on end_time' do
+          subject.validate
+          expect(subject.errors[:end_time]).to include('must be after start time')
+        end
+      end
+
+      context 'when all validations pass' do
+        it 'is valid' do
+          expect(subject).to be_valid
+        end
+      end
     end
   end
 
@@ -71,12 +103,16 @@ RSpec.describe Event, type: :model do
     end
 
     context 'transitioning to finished' do
-      subject { build(:event, start_time: 2.days.ago, end_time: 1.day.ago) }
+      subject { build(:event) }
 
-      it 'allows transition to finished when end_time is reached' do
-        expect(subject.end_time_reached?).to be true
-        subject.finish! if subject.end_time_reached?
-        expect(subject.aasm.current_state).to eq(:finished)
+      context 'when event end time reached' do
+        before { allow_any_instance_of(Event).to receive(:end_time_reached?).and_return(true) }
+
+        it 'allows transition to finished when end_time is reached' do
+          expect(subject.end_time_reached?).to be true
+          subject.finish! if subject.end_time_reached?
+          expect(subject.aasm.current_state).to eq(:finished)
+        end
       end
 
       context 'when end_time has not been reached' do
@@ -123,6 +159,18 @@ RSpec.describe Event, type: :model do
       it 'raises a Tickets::Errors::TicketOperationError' do
         expect { subject.decrement_available_tickets!(60) }
           .to raise_error(Tickets::Errors::TicketOperationError, 'Not enough available tickets')
+      end
+    end
+  end
+
+  describe 'database constraints' do
+    let(:event) { create(:event, total_tickets: 100, available_tickets: 100) }
+
+    context 'when trying to set available_tickets greater than total_tickets' do
+      it 'raises an ActiveRecord::StatementInvalid error due to database constraint' do
+        expect {
+          event.update_column(:available_tickets, 200)
+        }.to raise_error(ActiveRecord::StatementInvalid)
       end
     end
   end

@@ -1,10 +1,10 @@
 class Ticket < ApplicationRecord
   include AASM
 
+  AVAILIBALE_CURRENCIES = %w[USD EUR GBP].freeze
+
   belongs_to :user
   belongs_to :event
-
-  AVAILIBALE_CURRENCIES = %w[USD EUR GBP].freeze
 
   validates :price_cents, presence: true,
                           numericality: { only_integer: true, greater_than_or_equal_to: 0 }

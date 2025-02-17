@@ -13,8 +13,7 @@ RSpec.describe Ticket, type: :model do
       it { is_expected.to validate_presence_of(:currency) }
       it do
         is_expected.to validate_inclusion_of(:currency)
-          .in_array(%w[USD EUR GBP])
-          .with_message(/is not a valid currency/)
+          .in_array(%w[USD EUR GBP]).with_message(/is not a valid currency/)
       end
     end
 
