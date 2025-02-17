@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_02_17_160035) do
+ActiveRecord::Schema[7.1].define(version: 2025_02_17_190652) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -30,7 +30,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_02_17_160035) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_by"], name: "index_events_on_created_by"
+    t.index ["end_time"], name: "index_events_on_end_time"
+    t.index ["start_time"], name: "index_events_on_start_time"
     t.index ["state"], name: "index_events_on_state"
+    t.index ["ticket_price_cents"], name: "index_events_on_ticket_price_cents"
     t.check_constraint "available_tickets <= total_tickets", name: "available_tickets_check"
   end
 
@@ -52,7 +55,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_02_17_160035) do
     t.datetime "cancelled_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["event_id", "state"], name: "index_tickets_on_event_id_and_state"
     t.index ["event_id"], name: "index_tickets_on_event_id"
+    t.index ["price_cents"], name: "index_tickets_on_price_cents"
     t.index ["state"], name: "index_tickets_on_state"
     t.index ["user_id"], name: "index_tickets_on_user_id"
   end
