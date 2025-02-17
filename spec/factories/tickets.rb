@@ -20,11 +20,5 @@ FactoryBot.define do
       state { 'cancelled' }
       cancelled_at { Time.current }
     end
-
-    trait :refunded do
-      state { 'refunded' }
-      booked_at { Time.current }
-      cancelled_at { nil }
-    end
   end
 end

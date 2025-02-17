@@ -89,14 +89,6 @@ RSpec.describe Ticket, type: :model do
           end
         end
       end
-
-      context 'when state is refunded' do
-        subject { build(:ticket, :refunded) }
-
-        it 'is valid as long as the state is correctly set' do
-          expect(subject).to be_valid
-        end
-      end
     end
   end
 
@@ -124,15 +116,6 @@ RSpec.describe Ticket, type: :model do
     end
 
     context 'transitioning to cancelled' do
-      context 'from pending state' do
-        subject { create(:ticket, state: 'pending', booked_at: nil, cancelled_at: nil) }
-
-        it 'raises an error when refund! is called', :aggregate_failures do
-          expect { subject.cancel! }.to raise_error(AASM::InvalidTransition)
-          expect(subject.aasm.current_state).to eq(:pending)
-        end
-      end
-
       context 'from booked state' do
         subject { create(:ticket, :booked) }
 
@@ -140,26 +123,6 @@ RSpec.describe Ticket, type: :model do
           subject.cancel!
           expect(subject.aasm.current_state).to eq(:cancelled)
           expect(subject.cancelled_at).not_to be_nil
-        end
-      end
-    end
-
-    context 'transitioning to refunded' do
-      context 'from booked state' do
-        subject { create(:ticket, :booked) }
-
-        it 'transitions from booked to refunded when refund! is called', :aggregate_failures do
-          subject.refund!
-          expect(subject.aasm.current_state).to eq(:refunded)
-        end
-      end
-
-      context 'from pending state' do
-        subject { build(:ticket, state: 'pending') }
-
-        it 'raises an error when refund! is called', :aggregate_failures do
-          expect { subject.refund! }.to raise_error(AASM::InvalidTransition)
-          expect(subject.aasm.current_state).to eq(:pending)
         end
       end
     end

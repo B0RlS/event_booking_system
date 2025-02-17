@@ -19,7 +19,6 @@ class Ticket < ApplicationRecord
     state :pending, initial: true
     state :booked
     state :cancelled
-    state :refunded
 
     event :confirm, before: :set_booked_at do
       transitions from: :pending, to: :booked
@@ -27,10 +26,6 @@ class Ticket < ApplicationRecord
 
     event :cancel, before: :set_cancelled_at do
       transitions from: :booked, to: :cancelled
-    end
-
-    event :refund do
-      transitions from: :booked, to: :refunded
     end
   end
 
