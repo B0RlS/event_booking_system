@@ -10,14 +10,6 @@ module Tickets
       @ticket_count = ticket_count
     end
 
-    def validate!
-      validate_policy!(TicketPolicy.new(user, nil).book?, 'Not authorized to book tickets')
-      validate_event!
-      validate_user!
-      validate_available_tickets!(ticket_count)
-      validate_ticket_count!(ticket_count)
-    end
-
     def call
       validate!
       ActiveRecord::Base.transaction do
@@ -35,6 +27,14 @@ module Tickets
     private
 
     attr_reader :event, :user, :ticket_count
+
+    def validate!
+      validate_policy!(TicketPolicy.new(user, nil).book?, 'Not authorized to book tickets')
+      validate_event!
+      validate_user!
+      validate_available_tickets!(ticket_count)
+      validate_ticket_count!(ticket_count)
+    end
 
     def create_tickets
       Array.new(ticket_count) { Tickets::Create.call(event, user).data }

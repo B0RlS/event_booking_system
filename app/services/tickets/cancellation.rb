@@ -10,15 +10,6 @@ module Tickets
       @user = user
     end
 
-    def validate!
-      validate_policy!(TicketPolicy.new(user, tickets).cancel?, 'Not authorized to cancel tickets')
-      validate_event_tickets!
-      validate_event!
-      validate_user!
-      validate_user_tickets!
-      validate_not_cancelled!
-    end
-
     def call
       validate!
       ActiveRecord::Base.transaction do
@@ -35,6 +26,15 @@ module Tickets
     private
 
     attr_reader :event, :tickets, :user
+
+    def validate!
+      validate_policy!(TicketPolicy.new(user, tickets).cancel?, 'Not authorized to cancel tickets')
+      validate_event_tickets!
+      validate_event!
+      validate_user!
+      validate_user_tickets!
+      validate_not_cancelled!
+    end
 
     def cancel_ticket!(ticket)
       return if ticket.cancel!
