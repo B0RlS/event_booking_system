@@ -42,7 +42,7 @@ module SharedValidations
   end
 
   def validate_cancelation_for_event!
-    raise Events::Errors::EventOperationError, 'Event must be in active to cancel' unless event.can_cancel?
+    raise Events::Errors::EventOperationError, 'Event must be in active state to cancel' unless event.active?
   end
 
   def validate_required_event_params!(params)

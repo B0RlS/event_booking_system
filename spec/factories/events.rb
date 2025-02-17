@@ -13,13 +13,21 @@ FactoryBot.define do
     association :creator, factory: :user
 
     trait :finished do
-      start_time { Faker::Time.backward(days: 7, period: :morning) }
-      end_time   { start_time + 2.hours }
-      aasm_state { 'finished' }
+      after(:create) do |event|
+        event.start_time = Faker::Time.backward(days: 7, period: :morning)
+        event.end_time = event.start_time + 2.hours
+        event.save!(validate: false)
+        event.finish! if event.end_time_reached?
+      end
     end
 
     trait :cancelled do
-      aasm_state { 'cancelled' }
+      after(:create) do |event|
+        event.start_time = Time.current + 1.day
+        event.end_time = Time.current + 2.days
+        event.save!
+        event.cancel!
+      end
     end
   end
 end
