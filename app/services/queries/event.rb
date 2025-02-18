@@ -52,7 +52,7 @@ module Queries
       end
 
       def by_id(event_id)
-        find_by(id: event_id)
+        find(event_id)
       end
 
       def by_ids(event_ids)
@@ -67,9 +67,16 @@ module Queries
         order(start_time: order)
       end
 
-      # todo
       def all_with_includes
         includes(:creator, :tickets)
+      end
+
+      def cached_all_with_includes
+        Rails.cache.fetch("events/all", expires_in: 10.minutes) { all_with_includes }
+      end
+
+      def cached_find(id)
+        Rails.cache.fetch("events/#{id}", expires_in: 10.minutes) { by_id(id) }
       end
     end
   end

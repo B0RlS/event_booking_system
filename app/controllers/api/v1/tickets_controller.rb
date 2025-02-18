@@ -2,12 +2,12 @@ module Api
   module V1
     class TicketsController < BaseController
       def index
-        tickets = Queries::Ticket.by_user(current_user)
+        tickets = Queries::Ticket.cached_by_user(current_user)
         render json: decorate_response(tickets)
       end
 
       def show
-        ticket = Queries::Ticket.find(params[:id])
+        ticket = Queries::Ticket.cached_find(params[:id])
         authorize ticket, :show?
         render json: decorate_response(ticket)
       end

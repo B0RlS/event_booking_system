@@ -1,6 +1,5 @@
 module Events
-  class Update
-    extend Callable
+  class Update < ApplicationService
     include SharedPolicyValidation
     include SharedValidations
 
@@ -13,6 +12,7 @@ module Events
     def call
       validate!
       event.update!(params)
+      clear_event_cache(event.id)
       ServiceResult.new(success: true, data: event)
     rescue ActiveRecord::RecordInvalid, StandardError => e
       ServiceResult.new(success: false, errors: [e.message])
@@ -29,7 +29,12 @@ module Events
     end
 
     def event
-      @event ||= Queries::Event.find(event_id)
+      @event ||= Queries::Event.cached_find(event_id)
+    end
+
+    def clear_event_cache(event_id)
+      Rails.cache.delete("events/#{event_id}")
+      Rails.cache.delete("events/all")
     end
   end
 end

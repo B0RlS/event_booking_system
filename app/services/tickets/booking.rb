@@ -1,6 +1,5 @@
 module Tickets
-  class Booking
-    extend Callable
+  class Booking < ApplicationService
     include SharedValidations
     include SharedPolicyValidation
 
@@ -48,7 +47,7 @@ module Tickets
     end
 
     def event
-      @event ||= Queries::Event.find(event_id)
+      @event ||= Queries::Event.cached_find(event_id)
     end
   end
 end

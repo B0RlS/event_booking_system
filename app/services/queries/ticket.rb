@@ -62,6 +62,18 @@ module Queries
       def all_with_includes
         includes(:event, :user)
       end
+
+      def by_id(event_id)
+        find(event_id)
+      end
+
+      def cached_by_user(user)
+        Rails.cache.fetch("user_#{user.id}_tickets", expires_in: 5.minutes) { by_user(user) }
+      end
+
+      def cached_find(id)
+        Rails.cache.fetch("tickets/#{id}", expires_in: 5.minutes) { find(id) }
+      end
     end
   end
 end

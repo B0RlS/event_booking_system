@@ -3,7 +3,7 @@ module Api
     module Manager
       class TicketsController < BaseController
         def index
-          event = Queries::Event.find(params[:event_id])
+          event = Queries::Event.cached_find(params[:event_id])
           authorize event, :manage?
 
           tickets = Queries::Ticket.by_event(event).booked_and_cancelled

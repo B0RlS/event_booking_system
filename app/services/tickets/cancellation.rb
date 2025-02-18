@@ -1,6 +1,5 @@
 module Tickets
-  class Cancellation
-    extend Callable
+  class Cancellation < ApplicationService
     include SharedValidations
     include SharedPolicyValidation
 
@@ -41,7 +40,7 @@ module Tickets
     end
 
     def tickets
-      @tickets ||= Queries::Ticket.find(ticket_ids)
+      @tickets ||= Queries::Ticket.cached_find(ticket_ids)
     end
   end
 end

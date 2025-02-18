@@ -1,6 +1,5 @@
 module Events
-  class Cancellation
-    extend Callable
+  class Cancellation < ApplicationService
     include SharedPolicyValidation
     include SharedValidations
 
@@ -29,7 +28,7 @@ module Events
     end
 
     def event
-      @event ||= Queries::Event.find(event_id)
+      @event ||= Queries::Event.cached_find(event_id)
     end
   end
 end

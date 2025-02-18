@@ -1,7 +1,5 @@
 module Tickets
-  class Create
-    extend Callable
-
+  class Create < ApplicationService
     def initialize(event, user)
       @event = event
       @user = user

@@ -1,6 +1,5 @@
 module Events
-  class Create
-    extend Callable
+  class Create < ApplicationService
     include SharedPolicyValidation
     include SharedValidations
 
@@ -13,7 +12,7 @@ module Events
       validate!
       event = Event.new(params.merge(creator: user, state: 'active'))
       raise Events::Errors::EventCreationError, event.errors.full_messages.join(', ') unless event.save
-
+      clear_event_cache(event.id)
       ServiceResult.new(success: true, data: event)
     rescue Users::Errors::UserPolicyError, Events::Errors::EventCreationError, StandardError => e
       ServiceResult.new(success: false, errors: [e.message])
