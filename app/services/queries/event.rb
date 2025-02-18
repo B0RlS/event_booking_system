@@ -72,7 +72,7 @@ module Queries
       end
 
       def cached_all_with_includes
-        Rails.cache.fetch("events/all", expires_in: 10.minutes) { all_with_includes }
+        Rails.cache.fetch('events/all', expires_in: 10.minutes) { all_with_includes }
       end
 
       def cached_find(id)

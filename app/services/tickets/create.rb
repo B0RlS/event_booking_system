@@ -1,6 +1,7 @@
 module Tickets
   class Create < ApplicationService
     def initialize(event, user)
+      super()
       @event = event
       @user = user
       @price_cents = event.ticket_price_cents

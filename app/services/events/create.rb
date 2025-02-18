@@ -4,6 +4,7 @@ module Events
     include SharedValidations
 
     def initialize(params, user)
+      super()
       @params = params
       @user = user
     end
@@ -12,6 +13,7 @@ module Events
       validate!
       event = Event.new(params.merge(creator: user, state: 'active'))
       raise Events::Errors::EventCreationError, event.errors.full_messages.join(', ') unless event.save
+
       clear_event_cache(event.id)
       ServiceResult.new(success: true, data: event)
     rescue Users::Errors::UserPolicyError, Events::Errors::EventCreationError, StandardError => e

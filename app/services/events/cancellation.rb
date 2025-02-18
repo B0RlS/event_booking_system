@@ -4,6 +4,7 @@ module Events
     include SharedValidations
 
     def initialize(event_id, user)
+      super()
       @event_id = event_id
       @user = user
     end

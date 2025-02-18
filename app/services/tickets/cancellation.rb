@@ -4,6 +4,7 @@ module Tickets
     include SharedPolicyValidation
 
     def initialize(ticket_ids, user)
+      super()
       @ticket_ids = ticket_ids
       @user = user
     end

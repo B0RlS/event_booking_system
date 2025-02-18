@@ -1,7 +1,7 @@
 class EventDecorator < Draper::Decorator
   delegate_all
 
-  def as_json(*)
+  def as_json(*) # rubocop:disable  Metrics/AbcSize
     {
       id: id,
       name: name,

@@ -7,6 +7,6 @@ class ApplicationService
 
   def clear_event_cache(event_id)
     Rails.cache.delete("events/#{event_id}")
-    Rails.cache.delete("events/all")
+    Rails.cache.delete('events/all')
   end
 end
