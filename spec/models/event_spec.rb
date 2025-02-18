@@ -127,9 +127,18 @@ RSpec.describe Event, type: :model do
     end
 
     context 'transitioning to cancelled' do
+      let!(:event) { create(:event) }
+      let!(:ticket1) { create(:ticket, :booked, event: event) }
+      let!(:ticket2) { create(:ticket, event: event) }
+
       it 'can transition from active to cancelled' do
-        subject.cancel!
-        expect(subject.aasm.current_state).to eq(:cancelled)
+        event.cancel!
+        expect(event.aasm.current_state).to eq(:cancelled)
+      end
+
+      it 'cancels related booked tickets' do
+        expect { event.cancel! }.to change { Queries::Ticket.cancelled.count }.by(2)
+        expect(event.aasm.current_state).to eq(:cancelled)
       end
     end
   end

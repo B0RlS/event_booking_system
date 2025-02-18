@@ -34,7 +34,7 @@ class Event < ApplicationRecord
       transitions from: :active, to: :finished, guard: :end_time_reached?
     end
 
-    event :cancel do
+    event :cancel, after_commit: :cancel_all_tickets! do
       transitions from: :active, to: :cancelled
     end
   end
@@ -81,5 +81,11 @@ class Event < ApplicationRecord
     return if finished?
 
     errors.add(:end_time, 'must be in the future') if end_time.present? && end_time < Time.current
+  end
+
+  def cancel_all_tickets!
+    Ticket.transaction do
+      tickets.where(state: %w[booked pending]).each(&:cancel!)
+    end
   end
 end

@@ -85,6 +85,9 @@ GEM
       mutex_m
       securerandom (>= 0.3)
       tzinfo (~> 2.0)
+    after_commit_everywhere (1.6.0)
+      activerecord (>= 4.2)
+      activesupport
     ast (2.4.2)
     base64 (0.2.0)
     bcrypt (3.1.20)
@@ -389,6 +392,7 @@ PLATFORMS
 DEPENDENCIES
   aasm
   active_model_serializers
+  after_commit_everywhere
   bootsnap
   debug
   devise

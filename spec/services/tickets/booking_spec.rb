@@ -96,5 +96,14 @@ RSpec.describe Tickets::Booking, type: :service do
         expect(subject.errors.join).to eq("Couldn't find Event with 'id'=#{event_id}")
       end
     end
+
+    context 'when event is cancelled' do
+      let(:event) { create(:event, :cancelled) }
+
+      it 'returns a failure result', :aggregate_failures do
+        expect(subject.success?).to be false
+        expect(subject.errors.join).to eq('Event is cancelled')
+      end
+    end
   end
 end

@@ -54,6 +54,7 @@ gem 'aasm'
 gem 'dry-events'
 
 gem 'pundit'
+gem 'after_commit_everywhere'
 
 # ActiveModel Serializers for Presentation Layer
 gem 'active_model_serializers'

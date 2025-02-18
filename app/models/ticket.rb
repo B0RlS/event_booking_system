@@ -25,7 +25,7 @@ class Ticket < ApplicationRecord
     end
 
     event :cancel, before: :set_cancelled_at do
-      transitions from: :booked, to: :cancelled
+      transitions from: %i[booked pending], to: :cancelled
     end
   end
 

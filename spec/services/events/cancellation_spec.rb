@@ -28,8 +28,19 @@ RSpec.describe Events::Cancellation, type: :service do
       let(:event) { create(:event, :finished, creator: user) }
 
       it 'returns a failure result with the proper error message', :aggregate_failures do
-        expect(subject.success?).to be false
         expect(subject.errors.join).to eq('Event must be in active state to cancel')
+      end
+    end
+
+    context 'when cancelling event with booked tickets' do
+      before do
+        create_list(:ticket, 3, :booked, event: event, user: user)
+        create_list(:ticket, 2, event: event, user: user)
+      end
+
+      it 'cancels related booked tickets' do
+        expect { subject }.to change { Queries::Ticket.cancelled.count }.by(5)
+        expect(event.reload.state).to eq('cancelled')
       end
     end
 

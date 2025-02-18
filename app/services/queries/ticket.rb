@@ -35,6 +35,10 @@ module Queries
         where(state: %w[booked cancelled])
       end
 
+      def booked_and_pending
+        where(state: %w[booked pending])
+      end
+
       def pending
         where(state: 'pending')
       end

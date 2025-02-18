@@ -3,6 +3,7 @@ module SharedValidations
 
   def validate_event!
     raise Tickets::Errors::TicketOperationError, 'Event is invalid' unless event.valid?
+    raise Tickets::Errors::TicketOperationError, 'Event is cancelled' if event.cancelled?
   end
 
   def validate_user!
