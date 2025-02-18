@@ -168,9 +168,9 @@ RSpec.describe Event, type: :model do
 
     context 'when trying to set available_tickets greater than total_tickets' do
       it 'raises an ActiveRecord::StatementInvalid error due to database constraint' do
-        expect {
+        expect do
           event.update_column(:available_tickets, 200)
-        }.to raise_error(ActiveRecord::StatementInvalid)
+        end.to raise_error(ActiveRecord::StatementInvalid)
       end
     end
   end

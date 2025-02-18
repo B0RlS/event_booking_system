@@ -58,7 +58,8 @@ RSpec.describe Queries::Ticket, type: :query do
 
   describe '.booked_and_cancelled' do
     it 'returns only booked and cancelled tickets' do
-      expect(subject.booked_and_cancelled).to match_array([booked_ticket1, booked_ticket2, cancelled_ticket1, cancelled_ticket2])
+      expect(subject.booked_and_cancelled).to match_array([booked_ticket1, booked_ticket2, cancelled_ticket1,
+                                                           cancelled_ticket2])
     end
   end
 

@@ -4,7 +4,7 @@ module Queries
 
     module Scopes
       def by_name(name)
-        where("LOWER(name) LIKE ?", "%#{name.downcase}%")
+        where('LOWER(name) LIKE ?', "%#{name.downcase}%")
       end
 
       def by_state(state)
@@ -12,7 +12,7 @@ module Queries
       end
 
       def by_location(location)
-        where("LOWER(location) LIKE ?", "%#{location.downcase}%")
+        where('LOWER(location) LIKE ?', "%#{location.downcase}%")
       end
 
       def by_start_time(range)
@@ -24,11 +24,11 @@ module Queries
       end
 
       def upcoming
-        where("start_time > ?", Time.current)
+        where('start_time > ?', Time.current)
       end
 
       def past
-        where("end_time < ?", Time.current)
+        where('end_time < ?', Time.current)
       end
 
       def active
@@ -44,7 +44,7 @@ module Queries
       end
 
       def with_available_tickets
-        where("available_tickets > 0")
+        where('available_tickets > 0')
       end
 
       def by_price_range(min, max)
