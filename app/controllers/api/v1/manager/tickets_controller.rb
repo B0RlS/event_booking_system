@@ -6,7 +6,8 @@ module Api
           event = Queries::Event.find(params[:event_id])
           authorize event, :manage?
 
-          render json: Queries::Ticket.by_event(event).booked_and_cancelled
+          tickets = Queries::Ticket.by_event(event).booked_and_cancelled
+          render json: decorate_response(tickets)
         end
       end
     end

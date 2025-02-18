@@ -21,7 +21,7 @@ RSpec.describe 'Api::V1::Manager::Events', type: :request do
       expect(response).to have_http_status(:created)
     end
 
-    it 'returns unprocessable entity for invalid params' do
+    it 'returns unprocessable entity for invalid params', :aggregate_failures do
       post '/api/v1/manager/events', params: { name: '' }
       expect(response).to have_http_status(:unprocessable_entity)
       expect(json['errors'].join).to eq(error_message)
@@ -29,19 +29,23 @@ RSpec.describe 'Api::V1::Manager::Events', type: :request do
   end
 
   describe 'PATCH /api/v1/manager/events/:id' do
-    it 'updates the event when the manager is the creator' do
-      patch "/api/v1/manager/events/#{event.id}", params: { name: 'Updated Name' }
-      expect(response).to have_http_status(:ok)
-      expect(event.reload.name).to eq('Updated Name')
+    context 'when the manager is the creator' do
+      it 'updates the event', :aggregate_failures do
+        patch "/api/v1/manager/events/#{event.id}", params: { name: 'Updated Name' }
+        expect(response).to have_http_status(:ok)
+        expect(event.reload.name).to eq('Updated Name')
+      end
     end
 
-    it 'returns forbidden when a manager tries to update another manager’s event' do
-      patch "/api/v1/manager/events/#{other_event.id}", params: { name: 'Updated Name' }
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(json['errors'].join).to eq('Not authorized to update event')
+    context 'when a manager tries to update another manager’s event' do
+      it 'returns forbidden error', :aggregate_failures do
+        patch "/api/v1/manager/events/#{other_event.id}", params: { name: 'Updated Name' }
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(json['errors'].join).to eq('Not authorized to update event')
+      end
     end
 
-    it 'returns not found for a non-existent event' do
+    it 'returns not found for a non-existent event', :aggregate_failures do
       patch '/api/v1/manager/events/999999', params: { name: 'Updated Name' }
       expect(response).to have_http_status(:unprocessable_content)
       expect(json['errors'].join).to eq("Couldn't find Event with 'id'=999999")
@@ -49,19 +53,23 @@ RSpec.describe 'Api::V1::Manager::Events', type: :request do
   end
 
   describe 'DELETE /api/v1/manager/events/:id' do
-    it 'cancels the event when the manager is the creator' do
-      delete "/api/v1/manager/events/#{event.id}"
-      expect(response).to have_http_status(:ok)
-      expect(event.reload.state).to eq('cancelled')
+    context 'when the manager is the creator' do
+      it 'cancels the event', :aggregate_failures do
+        delete "/api/v1/manager/events/#{event.id}"
+        expect(response).to have_http_status(:ok)
+        expect(event.reload.state).to eq('cancelled')
+      end
     end
 
-    it 'returns forbidden when a manager tries to cancel another manager’s event' do
-      delete "/api/v1/manager/events/#{other_event.id}"
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(json['errors'].join).to eq('Not authorized to cancel event')
+    context 'when a manager tries to cancel another manager’s event' do
+      it 'returns forbidden error', :aggregate_failures do
+        delete "/api/v1/manager/events/#{other_event.id}"
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(json['errors'].join).to eq('Not authorized to cancel event')
+      end
     end
 
-    it 'returns not found for a non-existent event' do
+    it 'returns not found for a non-existent event', :aggregate_failures do
       delete '/api/v1/manager/events/999999'
       expect(response).to have_http_status(:unprocessable_content)
       expect(json['errors'].join).to eq("Couldn't find Event with 'id'=999999")
@@ -69,19 +77,26 @@ RSpec.describe 'Api::V1::Manager::Events', type: :request do
   end
 
   describe 'GET /api/v1/manager/events/:event_id/tickets' do
-    let!(:booked_ticket) { create(:ticket, :booked, event: event) }
-    let!(:other_booked_ticket) { create(:ticket, :booked, event: other_event) }
+    let(:expected_keys) { %w[id user_id event_id price status booked_at cancelled_at] }
 
-    it 'retrieves all booked and cancelled tickets for the manager’s own event' do
+    before do
+      create(:ticket, :booked, event: event)
+      create(:ticket, :booked, event: other_event)
+    end
+
+    it 'retrieves all booked and cancelled tickets for the manager’s own event', :aggregate_failures do
       get "/api/v1/manager/events/#{event.id}/tickets"
       expect(response).to have_http_status(:ok)
       expect(json.size).to eq(1)
+      expect(json.first.keys).to match_array(expected_keys)
       expect(json.first['event_id']).to eq(event.id)
     end
 
-    it 'returns forbidden when trying to access tickets for another manager’s event' do
-      get "/api/v1/manager/events/#{other_event.id}/tickets"
-      expect(response).to have_http_status(:forbidden)
+    context 'when trying to access tickets for another manager’s event' do
+      it 'returns forbidden' do
+        get "/api/v1/manager/events/#{other_event.id}/tickets"
+        expect(response).to have_http_status(:forbidden)
+      end
     end
 
     it 'returns not found for a non-existent event' do

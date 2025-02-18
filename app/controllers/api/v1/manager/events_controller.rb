@@ -5,7 +5,7 @@ module Api
         def create
           result = Events::Create.call(event_params, current_user)
           if result.success?
-            render json: result.data, status: :created
+            render json: decorate_response(result.data), status: :created
           else
             render json: { errors: result.errors }, status: :unprocessable_entity
           end
@@ -14,7 +14,7 @@ module Api
         def update
           result = Events::Update.call(params[:id], event_params, current_user)
           if result.success?
-            render json: result.data
+            render json: decorate_response(result.data)
           else
             render json: { errors: result.errors }, status: :unprocessable_entity
           end

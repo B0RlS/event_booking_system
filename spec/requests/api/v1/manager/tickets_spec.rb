@@ -15,23 +15,26 @@ RSpec.describe 'Api::V1::Manager::Tickets', type: :request do
 
   describe 'GET /api/v1/manager/events/:event_id/tickets' do
     context 'when the manager owns the event' do
-      it 'retrieves all booked and cancelled tickets' do
+      let(:expected_keys) { %w[id user_id event_id price status booked_at cancelled_at] }
+
+      it 'retrieves all booked and cancelled tickets', :aggregate_failures do
         get "/api/v1/manager/events/#{event.id}/tickets"
         expect(response).to have_http_status(:ok)
         expect(json.size).to eq(2)
+        expect(json.first.keys).to match_array(expected_keys)
         expect(json.map { |tikcet| tikcet['id'] }).to match_array([booked_ticket.id, cancelled_ticket.id])
       end
     end
 
     context 'when the manager does not own the event' do
-      it 'returns forbidden' do
+      it 'returns forbidden', :aggregate_failures do
         get "/api/v1/manager/events/#{other_event.id}/tickets"
         expect(response).to have_http_status(:forbidden)
       end
     end
 
     context 'when event does not exist' do
-      it 'returns not found' do
+      it 'returns not found', :aggregate_failures do
         get '/api/v1/manager/events/999999/tickets'
         expect(response).to have_http_status(:not_found)
       end

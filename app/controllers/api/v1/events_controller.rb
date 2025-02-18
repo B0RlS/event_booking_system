@@ -4,11 +4,13 @@ module Api
       skip_before_action :authenticate_user!, only: %i[index show]
 
       def index
-        render json: Queries::Event.all_with_includes
+        events = Queries::Event.all_with_includes
+        render json: decorate_response(events)
       end
 
       def show
-        render json: Queries::Event.find(params[:id])
+        event = Queries::Event.find(params[:id])
+        render json: decorate_response(event)
       end
     end
   end

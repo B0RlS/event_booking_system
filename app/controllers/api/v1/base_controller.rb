@@ -23,6 +23,18 @@ module Api
       def forbidden_request
         render json: { error: 'You are not authorized to perform this action' }, status: :forbidden
       end
+
+      def decorate_response(resource)
+        return if resource.nil?
+
+        if resource.respond_to?(:decorate)
+          resource.decorate
+        elsif resource.respond_to?(:each)
+          resource.each(&:decorate)
+        else
+          resource
+        end
+      end
     end
   end
 end
