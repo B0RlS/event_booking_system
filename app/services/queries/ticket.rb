@@ -31,6 +31,10 @@ module Queries
         where(state: 'booked')
       end
 
+      def booked_and_cancelled
+        where(state: %w[booked cancelled])
+      end
+
       def pending
         where(state: 'pending')
       end
@@ -49,6 +53,10 @@ module Queries
 
       def oldest
         order(created_at: :asc)
+      end
+
+      def all_with_includes
+        includes(:event, :user)
       end
     end
   end

@@ -1,12 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe Tickets::Booking, type: :service do
-  subject { described_class.call(event, user, ticket_count) }
+  subject { described_class.call(event_id, user, ticket_count) }
 
   let(:event) do
     create(:event, total_tickets: 100, available_tickets: 80,
                    ticket_price_cents: 5000, currency: 'USD')
   end
+  let(:event_id) { event.id }
   let(:user) { create(:user) }
   let(:ticket_count) { 10 }
 
@@ -78,21 +79,21 @@ RSpec.describe Tickets::Booking, type: :service do
       end
     end
 
-    context 'when event is invalid' do
-      let(:event) { build_stubbed(:event, total_tickets: nil, available_tickets: -10) }
-
-      it 'raises en policy error', :aggregate_failures do
-        expect(subject.success?).to be false
-        expect(subject.errors.join).to eq('Event is invalid')
-      end
-    end
-
     context 'when user is invalid' do
       let(:user) { build_stubbed(:user, role: nil) }
 
       it 'raises en policy error', :aggregate_failures do
         expect(subject.success?).to be false
         expect(subject.errors.join).to eq('User is invalid')
+      end
+    end
+
+    context 'when event not found' do
+      let(:event_id) { 999 }
+
+      it 'returns a failure result', :aggregate_failures do
+        expect(subject.success?).to be false
+        expect(subject.errors.join).to eq("Couldn't find Event with 'id'=#{event_id}")
       end
     end
   end

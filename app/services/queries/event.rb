@@ -66,6 +66,11 @@ module Queries
       def order_by_start_time(order = :asc)
         order(start_time: order)
       end
+
+      # todo
+      def all_with_includes
+        includes(:creator, :tickets)
+      end
     end
   end
 end

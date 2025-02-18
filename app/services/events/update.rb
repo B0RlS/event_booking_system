@@ -4,8 +4,8 @@ module Events
     include SharedPolicyValidation
     include SharedValidations
 
-    def initialize(event, params, user)
-      @event = event
+    def initialize(event_id, params, user)
+      @event_id = event_id
       @params = params
       @user = user
     end
@@ -20,12 +20,16 @@ module Events
 
     private
 
-    attr_reader :event, :params, :user
+    attr_reader :event_id, :params, :user
 
     def validate!
       validate_policy!(EventPolicy.new(user, event).update?, 'Not authorized to update event')
       validate_event!
       validate_user!
+    end
+
+    def event
+      @event ||= Queries::Event.find(event_id)
     end
   end
 end

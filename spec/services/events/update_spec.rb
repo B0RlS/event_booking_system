@@ -1,11 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe Events::Update, type: :service do
-  subject { described_class.call(event, update_params, user) }
+  subject { described_class.call(event_id, update_params, user) }
 
   let(:user) { create(:user, :manager) }
   let(:event) { create(:event, name: 'Original Name', creator: user) }
   let(:update_params) { { name: 'Updated Name' } }
+  let(:event_id) { event.id }
 
   describe '.call' do
     context 'when update is successful and authorized' do
@@ -40,6 +41,15 @@ RSpec.describe Events::Update, type: :service do
         it 'returns a failure result with AR validation error messages' do
           expect(subject.success?).to be false
           expect(subject.errors.join).to match(/Validation failed/)
+        end
+      end
+
+      context 'when event not found' do
+        let(:event_id) { 999 }
+
+        it 'returns a failure result', :aggregate_failures do
+          expect(subject.success?).to be false
+          expect(subject.errors.join).to eq("Couldn't find Event with 'id'=#{event_id}")
         end
       end
     end

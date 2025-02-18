@@ -4,8 +4,8 @@ module Tickets
     include SharedValidations
     include SharedPolicyValidation
 
-    def initialize(event, user, ticket_count)
-      @event = event
+    def initialize(event_id, user, ticket_count)
+      @event_id = event_id
       @user = user
       @ticket_count = ticket_count
     end
@@ -26,7 +26,7 @@ module Tickets
 
     private
 
-    attr_reader :event, :user, :ticket_count
+    attr_reader :event_id, :user, :ticket_count
 
     def validate!
       validate_policy!(TicketPolicy.new(user, nil).book?, 'Not authorized to book tickets')
@@ -45,6 +45,10 @@ module Tickets
 
       raise Tickets::Errors::TicketBookingError,
             "Ticket confirmation failed: #{ticket.errors.full_messages.join(', ')}"
+    end
+
+    def event
+      @event ||= Queries::Event.find(event_id)
     end
   end
 end

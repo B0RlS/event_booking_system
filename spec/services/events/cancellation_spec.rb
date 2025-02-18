@@ -1,10 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Events::Cancellation, type: :service do
-  subject { described_class.call(event, user) }
+  subject { described_class.call(event_id, user) }
 
   let(:user) { create(:user, :manager) }
   let(:event) { create(:event, creator: user) }
+  let(:event_id) { event.id }
 
   describe '.call' do
     context 'when cancellation is successful and authorized' do
@@ -38,6 +39,15 @@ RSpec.describe Events::Cancellation, type: :service do
       it 'returns a failure result', :aggregate_failures do
         expect(subject.success?).to be false
         expect(subject.errors.join).to eq('Cancellation failed')
+      end
+    end
+
+    context 'when event not found' do
+      let(:event_id) { 999 }
+
+      it 'returns a failure result', :aggregate_failures do
+        expect(subject.success?).to be false
+        expect(subject.errors.join).to eq("Couldn't find Event with 'id'=#{event_id}")
       end
     end
   end

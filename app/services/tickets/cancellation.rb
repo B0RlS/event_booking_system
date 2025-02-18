@@ -4,9 +4,8 @@ module Tickets
     include SharedValidations
     include SharedPolicyValidation
 
-    def initialize(event, tickets, user)
-      @event = event
-      @tickets = tickets
+    def initialize(ticket_ids, user)
+      @ticket_ids = ticket_ids
       @user = user
     end
 
@@ -14,7 +13,7 @@ module Tickets
       validate!
       ActiveRecord::Base.transaction do
         tickets.each do |ticket|
-          event.increment_available_tickets!
+          ticket.event.increment_available_tickets!
           cancel_ticket!(ticket)
         end
         ServiceResult.new(success: true, data: tickets)
@@ -25,12 +24,10 @@ module Tickets
 
     private
 
-    attr_reader :event, :tickets, :user
+    attr_reader :ticket_ids, :user
 
     def validate!
       validate_policy!(TicketPolicy.new(user, tickets).cancel?, 'Not authorized to cancel tickets')
-      validate_event_tickets!
-      validate_event!
       validate_user!
       validate_user_tickets!
       validate_not_cancelled!
@@ -41,6 +38,10 @@ module Tickets
 
       raise Tickets::Errors::TicketCancellationError,
             "Ticket cancellation failed: #{ticket.errors.full_messages.join(', ')}"
+    end
+
+    def tickets
+      @tickets ||= Queries::Ticket.find(ticket_ids)
     end
   end
 end
