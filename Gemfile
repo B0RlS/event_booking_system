@@ -53,6 +53,8 @@ gem 'aasm'
 # Event Sourcing / Domain Events
 gem 'dry-events'
 
+gem 'pundit'
+
 # ActiveModel Serializers for Presentation Layer
 gem 'active_model_serializers'
 

@@ -246,6 +246,8 @@ GEM
       stringio
     puma (6.6.0)
       nio4r (~> 2.0)
+    pundit (2.4.0)
+      activesupport (>= 3.0.0)
     racc (1.8.1)
     rack (3.1.10)
     rack-session (2.1.0)
@@ -402,6 +404,7 @@ DEPENDENCIES
   pry-byebug
   pry-rails
   puma (>= 5.0)
+  pundit
   rails (~> 7.1.5, >= 7.1.5.1)
   redis
   rspec-rails
