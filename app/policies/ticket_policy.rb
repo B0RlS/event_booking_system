@@ -6,12 +6,25 @@ class TicketPolicy
     @record = record
   end
 
+  def index?
+    user.present?
+  end
+
+  def show?
+    record.user == user
+  end
+
   def book?
     user.present?
   end
 
   def cancel?
+    manage?
+  end
+
+  def manage?
     return false unless user.present?
+
     if record.is_a?(Array)
       record.all? { |ticket| ticket.user == user && ticket.booked? }
     else

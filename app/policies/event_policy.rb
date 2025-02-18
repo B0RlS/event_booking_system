@@ -6,15 +6,23 @@ class EventPolicy
     @event = event
   end
 
+  def show?
+    true
+  end
+
   def create?
-    user.present? && user.role.name == 'manager'
+    user.present? && user.manager?
   end
 
   def update?
-    user.present? && user.role.name == 'manager' && event.creator == user
+    manage?
   end
 
   def cancel?
-    user.present? && user.role.name == 'manager' && event.creator == user
+    manage?
+  end
+
+  def manage?
+    user.present? && user.manager? && event.creator == user
   end
 end
