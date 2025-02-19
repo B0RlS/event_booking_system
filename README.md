@@ -2,9 +2,9 @@
 
 ## Introduction
 
-Event Booking System is a robust and scalable Ruby on Rails application designed to handle event management and ticket booking with best development practices. The project leverages modern architectural patterns such as **Service Objects, Query Objects, Policy Objects, Decorators, and Event Sourcing** to ensure maintainability, scalability, and high performance.
+Event Booking System is a robust and scalable Ruby on Rails application designed to handle event management and ticket booking with best development practices. The project leverages modern architectural patterns such as **Service Objects, Query Objects, Policy Objects, Decorators** and State Machine to ensure maintainability, scalability, and high performance.
 
-The system supports user authentication via **Devise**, role-based access control using **Pundit**, caching strategies with **Redis**, and background processing. Additionally, the system is optimized for event-driven architecture using **dry-events** for Pub/Sub pattern implementation.
+The system supports user authentication via **Devise**, role-based access control using **Pundit**, caching strategies with **Redis**.
 
 ## API Endpoints
 ### Authentication (Devise)
@@ -76,24 +76,19 @@ The system supports user authentication via **Devise**, role-based access contro
    - Used for formatting data presentation via `Draper` (e.g., `EventDecorator`, `TicketDecorator`).
    - Keeps view logic separate from models and controllers.
 
-### 5. **Event Sourcing with Pub/Sub Pattern** *(Future Enhancement)*
-   - Implement event-driven architecture using `dry-events`.
-   - Allow asynchronous event propagation for better system scalability.
-   - Can be extended for real-time notifications via **WebSockets**.
-
-### 6. **Caching & Performance Optimizations**
+### 5. **Caching & Performance Optimizations**
 - **Redis** caches frequently accessed data (events, tickets).
 - **Background Jobs (Sidekiq)** for async tasks *(Future Enhancement)*.
 
-### 7. **RESTful API & HTTP Standards**
+### 6. **RESTful API & HTTP Standards**
 - Standard HTTP methods (`GET, POST, PATCH, DELETE`).
 - Consistent response formats with JSON.
 
-### 8. **Form Object Pattern** *(Future Enhancement)*
+### 7. **Form Object Pattern** *(Future Enhancement)*
    - Will be implemented for complex form handling, ensuring validation is handled separately from models.
    - Keeps controllers slim and ensures reusability.
 
-### 9. **Dependency Injection Pattern** *(Future Enhancement)*
+### 8. **Dependency Injection Pattern** *(Future Enhancement)*
    - Improve modularity by injecting dependencies dynamically instead of hardcoding them.
    - Facilitates better testing and flexibility.
 
