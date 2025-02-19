@@ -1,19 +1,17 @@
 module Tickets
-  class Create < ApplicationService
+  class Creation < ApplicationService
     def initialize(event, user)
       super()
       @event = event
       @user = user
-      @price_cents = event.ticket_price_cents
-      @currency = event.currency
     end
 
     def call
       ticket = Ticket.new(
         event: event,
         user: user,
-        price_cents: price_cents,
-        currency: currency,
+        price_cents: event.ticket_price_cents,
+        currency: event.currency,
         state: 'pending'
       )
       raise Tickets::Errors::TicketOperationError, ticket.errors.full_messages.join(', ') unless ticket.save
@@ -23,6 +21,6 @@ module Tickets
 
     private
 
-    attr_reader :event, :user, :price_cents, :currency
+    attr_reader :event, :user
   end
 end

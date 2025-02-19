@@ -1,8 +1,5 @@
 module Events
   class Update < ApplicationService
-    include SharedPolicyValidation
-    include SharedValidations
-
     def initialize(event_id, params, user)
       super()
       @event_id = event_id
@@ -25,8 +22,6 @@ module Events
 
     def validate!
       validate_policy!(EventPolicy.new(user, event).update?, 'Not authorized to update event')
-      validate_event!
-      validate_user!
     end
 
     def event

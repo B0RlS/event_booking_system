@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Events::Create, type: :service do
+RSpec.describe Events::Creation, type: :service do
   subject { described_class.call(params, user) }
 
   let(:user) { create(:user, :manager) }

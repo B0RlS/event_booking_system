@@ -52,7 +52,7 @@ RSpec.describe Tickets::Booking, type: :service do
                         confirm!: false)
       end
       before do
-        allow(Tickets::Create).to receive(:call).and_return(ServiceResult.new(success: true, data: dummy_ticket))
+        allow(Tickets::Creation).to receive(:call).and_return(ServiceResult.new(success: true, data: dummy_ticket))
       end
 
       it 'returns a failure result', :aggregate_failures do
@@ -76,15 +76,6 @@ RSpec.describe Tickets::Booking, type: :service do
       it 'raises en policy error', :aggregate_failures do
         expect(subject.success?).to be false
         expect(subject.errors.join).to eq('Not authorized to book tickets')
-      end
-    end
-
-    context 'when user is invalid' do
-      let(:user) { build_stubbed(:user, role: nil) }
-
-      it 'raises en policy error', :aggregate_failures do
-        expect(subject.success?).to be false
-        expect(subject.errors.join).to eq('User is invalid')
       end
     end
 

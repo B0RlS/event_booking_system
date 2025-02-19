@@ -1,8 +1,5 @@
 module Events
-  class Create < ApplicationService
-    include SharedPolicyValidation
-    include SharedValidations
-
+  class Creation < ApplicationService
     def initialize(params, user)
       super()
       @params = params
@@ -26,8 +23,13 @@ module Events
 
     def validate!
       validate_policy!(EventPolicy.new(user, nil).create?, 'Not authorized to create event')
-      validate_user!
       validate_required_event_params!(params)
+    end
+
+      def validate_required_event_params!(params)
+      missing = Event::REQUIRED_KEYS.select { |k| params[k].blank? }
+
+      raise Events::Errors::EventOperationError, "Missing event parameters: #{missing.join(', ')}" if missing.any?
     end
   end
 end

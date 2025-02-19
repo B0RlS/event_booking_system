@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Tickets::Create, type: :service do
+RSpec.describe Tickets::Creation, type: :service do
   subject { described_class.call(event, user) }
 
   let(:event) { create(:event, total_tickets: 100, available_tickets: 80, ticket_price_cents: 5000, currency: 'USD') }

@@ -1,8 +1,5 @@
 module Tickets
   class Cancellation < ApplicationService
-    include SharedValidations
-    include SharedPolicyValidation
-
     def initialize(ticket_ids, user)
       super()
       @ticket_ids = ticket_ids
@@ -28,7 +25,6 @@ module Tickets
 
     def validate!
       validate_policy!(TicketPolicy.new(user, tickets).cancel?, 'Not authorized to cancel tickets')
-      validate_user!
       validate_user_tickets!
       validate_not_cancelled!
     end
@@ -42,6 +38,18 @@ module Tickets
 
     def tickets
       @tickets ||= Queries::Ticket.cached_find(ticket_ids)
+    end
+
+    def validate_user_tickets!
+      return unless tickets.reject { |ticket| ticket.user_id == user.id }.any?
+
+      raise Tickets::Errors::TicketOperationError,
+            'Some tickets do not belong to the user'
+    end
+
+    def validate_not_cancelled!
+      already_cancelled = tickets.select(&:cancelled?)
+      raise Tickets::Errors::TicketOperationError, 'Some tickets are already cancelled' if already_cancelled.any?
     end
   end
 end

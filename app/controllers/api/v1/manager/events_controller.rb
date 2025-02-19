@@ -3,7 +3,7 @@ module Api
     module Manager
       class EventsController < BaseController
         def create
-          result = Events::Create.call(event_params, current_user)
+          result = Events::Creation.call(event_params, current_user)
           if result.success?
             render json: decorate_response(result.data), status: :created
           else

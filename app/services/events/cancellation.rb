@@ -1,8 +1,5 @@
 module Events
   class Cancellation < ApplicationService
-    include SharedPolicyValidation
-    include SharedValidations
-
     def initialize(event_id, user)
       super()
       @event_id = event_id
@@ -23,13 +20,15 @@ module Events
 
     def validate!
       validate_policy!(EventPolicy.new(user, event).cancel?, 'Not authorized to cancel event')
-      validate_event!
-      validate_user!
       validate_cancelation_for_event!
     end
 
     def event
       @event ||= Queries::Event.cached_find(event_id)
+    end
+
+    def validate_cancelation_for_event!
+      raise Events::Errors::EventOperationError, 'Event must be in active state to cancel' unless event.active?
     end
   end
 end
