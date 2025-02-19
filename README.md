@@ -6,6 +6,80 @@ Event Booking System is a robust and scalable Ruby on Rails application designed
 
 The system supports user authentication via **Devise**, role-based access control using **Pundit**, caching strategies with **Redis**.
 
+---
+
+## **Use Cases (How the System Works)**
+
+### **1. Guest (Unauthenticated User)**
+- Can **view all events** (`GET /api/v1/events`).
+- Can **view details of a specific event** (`GET /api/v1/events/:id`).
+- **Cannot** book tickets.
+
+### **2. Regular User (Role: `user`)**
+- Can do everything a guest can.
+- Can **book a ticket for an event** (`POST /api/v1/events/:event_id/tickets`).
+- Can **view their booked tickets** (`GET /api/v1/tickets`).
+- Can **view details of a specific ticket** (`GET /api/v1/tickets/:id`).
+- Can **cancel their booked tickets** (`DELETE /api/v1/tickets/:id`).
+
+### **3. Manager (Role: `manager`)**
+- Can do everything a regular user can.
+- Can **create events** (`POST /api/v1/manager/events`).
+- Can **edit events** (`PATCH /api/v1/manager/events/:id`).
+- Can **cancel events** (`DELETE /api/v1/manager/events/:id`).
+- Can **view all booked tickets for their events** (`GET /api/v1/manager/events/:event_id/tickets`).
+
+### **4. Automatic Ticket Cancellation when an Event is Deleted**
+- If a manager **cancels an event**, all booked and pending tickets for that event are **automatically canceled**.
+- This prevents users from having active tickets for non-existent events.
+
+### **5. Additional useful features**
+- Protection events from overbooking (Users can't book more tickets that event has)
+- Multiply selection tickets for cancellation (possible to cancel different tickets form different events)
+- Multiply tickets booking, user can book more then one ticket but no more then availible tickets count
+- Error handling and validations to protect system form bad requests
+- Policy usage for permissions
+- Decorated data for freindly and comfortable information
+- Money gem usage for working and extending system to work with payment in future and different currencies
+
+---
+
+## **Backend Functionality & System Behavior**
+### **Event & Ticket State Transitions (FSM - Finite State Machine)**
+- **Events** have the following states:
+  - `active` (initial)
+  - `finished` (after event time ends)
+  - `cancelled` (when deleted by a manager)
+- **Tickets** have the following states:
+  - `pending` (initial)
+  - `booked` (after confirmation)
+  - `cancelled` (user-initiated or event cancellation)
+
+### **Caching Strategy**
+- **Events & Tickets** are cached using **Redis** to reduce database queries.
+- Cached data is automatically **cleared** when events or tickets are updated.
+
+### **Security & Access Control**
+- Uses **Devise** for user authentication.
+- Implements **Pundit Policies** for role-based access control.
+- Regular users cannot access manager-specific endpoints.
+- Users can only **view and cancel** their own tickets.
+- Managers can only **manage events they created**.
+
+### **Query Optimization and Database**
+- Uses **Query Objects** to handle complex database queries efficiently.
+- Reduces **N+1 queries** by preloading associated models.
+- ACID
+
+### **Searching and Filtering**
+- Using **Query Objects** we have optimized code to filter and sort data
+
+### **Error Handling & Transaction Management**
+- **Service Objects** wrap business logic, ensuring a clean and reusable structure.
+- **ActiveRecord Transactions** prevent data inconsistencies during booking and cancellations.
+- **ServiceResult Pattern** standardizes error handling across the system.
+
+
 ## API Endpoints
 ### Authentication (Devise)
 - `POST /users/sign_in` – User login
@@ -92,7 +166,13 @@ The system supports user authentication via **Devise**, role-based access contro
    - Improve modularity by injecting dependencies dynamically instead of hardcoding them.
    - Facilitates better testing and flexibility.
 
+### 9. **Pub/Sub Pattern** *(Future Enhancement)*
+   - Improve events handling and notifications (more info below)
+
 ## System Design Improvements
+### 0. **Removing Role module**
+   - After fresh review I got that its better to move this logic to User table (for this tipe of task)
+
 ### 1. **Scaling via Load Balancer & CDN**
    - Implement **NGINX or AWS ELB** for request distribution.
    - Use **Cloudflare or AWS CloudFront** for caching static assets.
